@@ -1,6 +1,6 @@
-
 .App {
   text-align: center;
+  background-color: black;
 }
 
 .App-logo {
@@ -14,7 +14,7 @@
   }
 }
 
-.App-header {
+.App-top {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -23,6 +23,9 @@
   font-size: calc(10px + 2vmin);
   color: white;
   background-image: url(./UI/Images/bgimg1.jpg);
+  background-repeat: no-repeat;
+  background-size: 100%;
+  background-position: top;
 }
 
 .App-link {
@@ -36,4 +39,7 @@
   to {
     transform: rotate(360deg);
   }
+}
+.App-heading {
+  padding-top: 0px;
 }
