@@ -1,19 +1,16 @@
 import styles from './App.module.scss';
+// import { useLoadScript } from '@react-google-maps/api';
+import Top from './Top/Top';
+import Map from './Map/Map';
+import Bottom from './Bottom/Bottom';
 
 function App() {
+    // const {isLoaded}= useLoadScript({googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY!, libraries:['places']})
     return (
         <div className={styles.App}>
-            <div className={styles['App-top']}>
-                <h1 className={styles['App-heading']}>
-                    Locate the nearest participating retailer for the BC Electric Bike RebateProgram
-                </h1>
-                <form>
-                    <label>Your location: </label>
-                    <input type="text" />
-                    <br />
-                    <input type="submit" value="Submit" />
-                </form>
-            </div>  
+            <Top />
+            <Map>Oh My god ehjlasfd</Map>
+            <Bottom />
         </div>
     );
 }
