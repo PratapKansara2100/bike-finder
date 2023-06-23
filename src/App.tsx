@@ -9,7 +9,7 @@ function App() {
     return (
         <div className={styles.App}>
             <Top />
-            <Map>Oh My god ehjlasfd</Map>
+            <Map>Display map here</Map>
             <Bottom />
         </div>
     );
