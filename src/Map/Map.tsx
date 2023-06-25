@@ -46,13 +46,7 @@ function Map() {
     console.log(latLng);
     return (
         <div className="container">
-            <div>
-                <GoogleMap
-                    zoom={10}
-                    center={latLng}
-                    mapContainerClassName="map-container"
-                ></GoogleMap>
-            </div>
+            <GoogleMap zoom={10} center={latLng} mapContainerClassName="map-actual"></GoogleMap>
         </div>
     );
 }
