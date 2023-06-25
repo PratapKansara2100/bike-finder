@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { ReactNode, useMemo } from 'react';
 import {
     GoogleMap,
     // Marker,
@@ -29,10 +29,11 @@ function Map() {
         return getUserCoordinate();
     }, []);
     console.log(latLang);
-
+    const str: string = latLang.lat + ' ' + latLang.lng;
     return (
         <div className="container">
             <div>
+                {str}
                 <GoogleMap zoom={10} center={latLang}></GoogleMap>
             </div>
         </div>
