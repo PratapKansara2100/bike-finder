@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import {
     GoogleMap,
     // Marker,
@@ -13,28 +13,45 @@ type LatLngLiteral = google.maps.LatLngLiteral;
 // type DirectionsResult = google.maps.DirectionsResult;
 // type MapOptions = google.maps.MapOptions;
 
-let curCoords: LatLngLiteral = { lat: 0, lng: 0 };
-function getUserCoordinate(): LatLngLiteral {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-            curCoords = { lat: position.coords.latitude, lng: position.coords.longitude };
-            console.log(position);
-        });
-    } else curCoords = { lat: 49.248077, lng: -123.041301 };
-    return curCoords;
-}
+// so that user's location is auto detected, but not working as geolocation is asynchronous
+// function getUserCoordinate(): LatLngLiteral {
+//     let curCoords: LatLngLiteral = { lat: 49.248077, lng: -123.041301 };
+//     if (navigator.geolocation) {
+//         navigator.geolocation.getCurrentPosition((position) => {
+//             curCoords = { lat: position.coords.latitude, lng: position.coords.longitude };
+//             console.log(position);
+//         });
+//     }
+//     return curCoords;
+// }
 
 function Map() {
-    const latLang = useMemo((): LatLngLiteral => {
-        return getUserCoordinate();
+    const [latLng, setlatLng] = useState({ lat: 49.248077, lng: -123.041301 });
+    useEffect(() => {
+        (function getUserCoordinate(): LatLngLiteral {
+            let curCoords: LatLngLiteral = { lat: 49.248077, lng: -123.041301 };
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    setlatLng({ lat: position.coords.latitude, lng: position.coords.longitude });
+                });
+            }
+            return curCoords;
+        })();
     }, []);
-    console.log(latLang);
-    const str: string = latLang.lat + ' ' + latLang.lng;
+
+    // const latLang = useMemo((): LatLngLiteral => {
+    //     return getUserCoordinate();
+    // }, []);
+    // const latLng = useMemo((): LatLngLiteral => ({ lat: 49.248077, lng: -123.041301 }), []);
+    console.log(latLng);
     return (
         <div className="container">
             <div>
-                {str}
-                <GoogleMap zoom={10} center={latLang}></GoogleMap>
+                <GoogleMap
+                    zoom={10}
+                    center={latLng}
+                    mapContainerClassName="map-container"
+                ></GoogleMap>
             </div>
         </div>
     );
