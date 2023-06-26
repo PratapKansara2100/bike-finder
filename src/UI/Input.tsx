@@ -9,9 +9,9 @@ type InputProps = {
 
 const Input = React.forwardRef(function ({ ref, placeholder, input }: InputProps) {
     return (
-        <div>
+        <>
             <input className="input-style" ref={ref} {...input}></input>
-        </div>
+        </>
     );
 });
 export default Input;

@@ -2,8 +2,7 @@ import { ReactNode } from 'react';
 import { useLoadScript } from '@react-google-maps/api';
 import { Grid } from 'react-loader-spinner';
 import styles from './App.module.scss';
-import Top from './Top/Top';
-import MapContainer from './Map/MapContainer';
+import Top from './Top/Header';
 import Map from './Map/Map';
 import Bottom from './Bottom/Bottom';
 
@@ -29,7 +28,7 @@ function App() {
     return (
         <div className={styles.App}>
             <Top />
-            <MapContainer>{mapDisplay}</MapContainer>
+            {mapDisplay}
             <Bottom />
         </div>
     );
