@@ -105,7 +105,7 @@ function Map() {
                         options={mapOptions}
                         onLoad={onLoad}
                     >
-                        <Marker position={userLocation} icon=''></Marker>
+                        <Marker position={userLocation} icon='../UI/pin.png'></Marker>
                     </GoogleMap>
                 </div>
             </MapContainer>
