@@ -14,6 +14,7 @@ function App() {
     const mapDisplay: ReactNode = isLoaded ? (
         <Map />
     ) : (
+        // this is the loading spinner
         <Grid
             height="80"
             width="80"

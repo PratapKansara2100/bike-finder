@@ -9,6 +9,7 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
+    "@reach/combobox": "^0.18.0",
     "@react-google-maps/api": "^2.18.1",
     "classnames": "^2.3.2",
     "dotenv": "^16.3.1",
