@@ -1,6 +1,4 @@
 import { useEffect, useMemo, useState, useRef, useCallback } from 'react';
-import bikeStorIcon from '../UI/bikeStore.png';
-
 import {
     GoogleMap,
     InfoWindowF,
@@ -9,8 +7,10 @@ import {
     DirectionsRenderer,
 } from '@react-google-maps/api';
 import Places from './Places';
-import './Map.scss';
 import MapContainer from './MapContainer';
+import './Map.scss';
+import Bottom from '../Bottom/Bottom';
+import bikeStorIcon from '../UI/bikeStore.png';
 
 type LatLngLiteral = google.maps.LatLngLiteral;
 type DirectionsResult = google.maps.DirectionsResult;
@@ -23,11 +23,38 @@ type storesData = {
     url: string;
     coordinates: LatLngLiteral;
 };
+type storesDataNoCoords = {
+    name: string;
+    area: string;
+    address: string;
+    onlineStore: string;
+    url: string;
+    coordinates: null | undefined | LatLngLiteral;
+};
 
 type myError = {
     isError: boolean;
     value: string;
 };
+const data2: storesDataNoCoords[] = [
+    {
+        name: 'Alien E-bikes & Scooters Ltd.',
+        area: 'Surrey',
+        address: '3 9530 189 St.',
+        onlineStore: 'Yes',
+        url: 'https://alienebikesandscooters.com',
+        coordinates: null,
+    },
+    {
+        name: 'Aline Sports',
+        area: 'Richmond',
+        address: '11211 Birdgeport Rd 101',
+        onlineStore: 'Yes',
+        url: 'https://alinesport.com',
+        coordinates: null,
+    },
+];
+
 const data1: storesData[] = [
     {
         name: 'Alien E-bikes & Scooters Ltd.',
@@ -116,7 +143,9 @@ function Map() {
     });
     const [selectedMarker, setSelectedMarker] = useState<storesData>();
     const [directions, setDirections] = useState<DirectionsResult>();
+    const [enhancedStores, setEnhancedStores] = useState<storesData[]>([...data1]);
 
+    // no error in when the app starts
     let cityErrorState = useMemo<myError>(() => {
         return { isError: false, value: '' };
     }, []);
@@ -124,10 +153,9 @@ function Map() {
     const mapOptions = useMemo<MapOptions>(() => {
         return { disableDefaultUI: true, clickableIcons: false, mapId: 'a4e414a0f398b366' }; //
     }, []);
-    const [enhancedStores, setEnhancedStores] = useState<storesData[]>([...data1]);
 
     useEffect(() => {
-        //getting the user coordinates if they exist
+        //getting the user coordinates if they exist, setting the userLocation and city from the coordinates if they exist
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition((position) => {
                 setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
@@ -136,18 +164,7 @@ function Map() {
         }
     }, []);
 
-    useEffect(() => {
-        if (!displayAllStore) {
-            setEnhancedStores(generateStoresInCity(userCity));
-        } else setEnhancedStores(generateAllStores());
-    }, [userCity, displayAllStore]);
-
-    const onLoad = useCallback((map: any) => (mapRef.current = map), []);
-
-    const toggleDisplayAllStore = (): void => {
-        setDisplayAllStore(!displayAllStore);
-    };
-
+    // setting the city for the coordinates that are passed, gets city as using locality for result type in url, userCity is null, so get's error on page
     const getCity = async (coords: LatLngLiteral) => {
         try {
             cityErrorState.isError = false;
@@ -169,6 +186,21 @@ function Map() {
             'Bike stores are only visible on the map in cities available in the City Dropdown above';
     }
 
+    // changing the data according to the checkbox
+    useEffect(() => {
+        if (!displayAllStore) {
+            setEnhancedStores(generateStoresInCity(userCity));
+        } else setEnhancedStores(generateAllStores());
+    }, [userCity, displayAllStore]);
+
+    // handeling the checkbox change
+    const toggleDisplayAllStore = (): void => {
+        setDisplayAllStore(!displayAllStore);
+    };
+
+    // setting a reference to map onLoad, helps with panning
+    const onLoad = useCallback((map: any) => (mapRef.current = map), []);
+
     const fetchDirections = (storeLocation: LatLngLiteral) => {
         if (!userLocation) return;
         // crating a new instance of direction service
@@ -186,7 +218,7 @@ function Map() {
             }
         );
     };
-    // if (!cityErrorState.isError) enhancedStores = generateStores(userCity, displayAllStore).then();
+
     return (
         <>
             <form>
@@ -301,10 +333,10 @@ function Map() {
                                 </div>
                             </InfoWindowF>
                         )}
-                        {/* stores */}
                     </GoogleMap>
                 </div>
             </MapContainer>
+            <Bottom data={data2}></Bottom>
         </>
     );
 }

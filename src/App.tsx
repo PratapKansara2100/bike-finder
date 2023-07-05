@@ -4,7 +4,6 @@ import { Grid } from 'react-loader-spinner';
 import styles from './App.module.scss';
 import Top from './Top/Header';
 import Map from './Map/Map';
-import Bottom from './Bottom/Bottom';
 
 function App() {
     const { isLoaded } = useLoadScript({
@@ -30,7 +29,6 @@ function App() {
         <div className={styles.App}>
             <Top />
             {mapDisplay}
-            <Bottom />
         </div>
     );
 }
