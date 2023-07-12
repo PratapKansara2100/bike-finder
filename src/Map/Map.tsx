@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import {
     GoogleMap,
     InfoWindowF,
-    MarkerClusterer,
+    MarkerClustererF,
     MarkerF,
     DirectionsRenderer,
 } from '@react-google-maps/api';
@@ -77,7 +77,6 @@ function Map() {
     const [selectedMarker, setSelectedMarker] = useState<storesData>();
     const [directions, setDirections] = useState<DirectionsResult>();
     const [enhancedStores, setEnhancedStores] = useState<storesData[]>([...data1]);
-    const [filteredStores, setFilteredStores] = useState<storesData[]>([...data1]);
     const [storesNotOnMap, setStoresNotOnMap] = useState<storesDataNoCoords[]>([...data2]);
     const [allCities, setAllCities] = useState<string[]>(['Vancouver']);
 
@@ -106,13 +105,12 @@ function Map() {
                     if (i === 2) setEnhancedStores(response);
                 });
                 setUserCity('Vancouver');
-                console.log('got the data');
-                debugger;
             })
             .catch((error) => {
                 // Handle errors, if any of the requests fail
                 console.error(error);
             });
+        setDisplayAllStore(true);
     }, []);
 
     useEffect(() => {
@@ -147,22 +145,6 @@ function Map() {
             'Bike stores are only visible on the map in cities available in the City Dropdown above';
     }
 
-    // changing the data according to the checkbox
-    useEffect(() => {
-        const generateAllStores = (): storesData[] => {
-            return enhancedStores;
-        };
-
-        // }
-        const generateStoresInCity = (city: string): storesData[] => {
-            const newData: storesData[] = enhancedStores.filter((store) => store.area === city);
-            return newData;
-        };
-        if (!displayAllStore) {
-            setFilteredStores(generateStoresInCity(userCity));
-        } else setFilteredStores(generateAllStores());
-    }, [userCity, displayAllStore]);
-
     // handeling the checkbox change
     const toggleDisplayAllStore = (): void => {
         setDisplayAllStore(!displayAllStore);
@@ -188,7 +170,6 @@ function Map() {
             }
         );
     };
-
     return (
         <>
             <form>
@@ -211,8 +192,6 @@ function Map() {
                                 </option>
                             ))}
                     </select>
-                    <span className="description"> Show all stores: </span>
-                    <input type="checkbox" className="checkboxx" onClick={toggleDisplayAllStore} />
                 </span>
             </form>
             <br />
@@ -232,7 +211,7 @@ function Map() {
                         <MarkerF position={userLocation} />
                         {/* if no city error then (if no display All store then no cluster, just markerf. if display store then clustering with enhanced store as thart) */}
                         {!displayAllStore ? (
-                            filteredStores.map((store, i) => {
+                            enhancedStores.map((store, i) => {
                                 return (
                                     <MarkerF
                                         key={i}
@@ -246,10 +225,10 @@ function Map() {
                                 );
                             })
                         ) : (
-                            <MarkerClusterer>
+                            <MarkerClustererF>
                                 {(clusturer) => (
                                     <>
-                                        {filteredStores.map((store, i) => (
+                                        {enhancedStores.map((store, i) => (
                                             <MarkerF
                                                 key={i}
                                                 position={store.coordinates}
@@ -263,7 +242,7 @@ function Map() {
                                         ))}
                                     </>
                                 )}
-                            </MarkerClusterer>
+                            </MarkerClustererF>
                         )}
                         {selectedMarker && (
                             <InfoWindowF
@@ -301,6 +280,11 @@ function Map() {
                                     >
                                         get directions
                                     </button>
+                                    <br />
+                                    <small>
+                                        For stores showing outside of BC, check details manually
+                                        (Technical-Error)*
+                                    </small>
                                 </div>
                             </InfoWindowF>
                         )}
