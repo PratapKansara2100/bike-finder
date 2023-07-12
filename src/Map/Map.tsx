@@ -29,89 +29,23 @@ type storesDataNoCoords = {
     address: string;
     onlineStore: string;
     url: string;
-    coordinates: null | undefined | LatLngLiteral;
+    coordinates: null | undefined | LatLngLiteral | string;
 };
 
 type myError = {
     isError: boolean;
     value: string;
 };
-const data2: storesDataNoCoords[] = [
-    {
-        name: 'Alien E-bikes & Scooters Ltd.',
-        area: 'Surrey',
-        address: '3 9530 189 St.',
-        onlineStore: 'Yes',
-        url: 'https://alienebikesandscooters.com',
-        coordinates: null,
-    },
-    {
-        name: 'Aline Sports',
-        area: 'Richmond',
-        address: '11211 Birdgeport Rd 101',
-        onlineStore: 'Yes',
-        url: 'https://alinesport.com',
-        coordinates: null,
-    },
-];
+
+function getJson(url: string) {
+    return fetch(url)
+        .then((response) => response.json())
+        .catch((error) => {
+            console.error(error);
+        });
+}
 
 const data1: storesData[] = [
-    {
-        name: 'Alien E-bikes & Scooters Ltd.',
-        area: 'Surrey',
-        address: '3 9530 189 St.',
-        onlineStore: 'Yes',
-        url: 'https://alienebikesandscooters.com',
-        coordinates: { lat: 49.1758709, lng: -122.6984493 },
-    },
-    {
-        name: 'Aline Sports',
-        area: 'Richmond',
-        address: '11211 Birdgeport Rd 101',
-        onlineStore: 'Yes',
-        url: 'https://alinesport.com',
-        coordinates: { lat: 49.19226310000001, lng: -123.0998919 },
-    },
-    {
-        name: 'All Battery Duncan ltd',
-        area: 'Victoria',
-        address: '5311 Trans Canada Highway',
-        onlineStore: 'Yes',
-        url: 'https://allbatterypowered.com',
-        coordinates: { lat: 48.7652679, lng: -123.6951755 },
-    },
-    {
-        name: 'Alter Ego Bikes',
-        area: 'Abbotsford',
-        address: '106-30799 Simpson Road',
-        onlineStore: 'Yes',
-        url: 'https://alteregobikes.com',
-        coordinates: { lat: 49.04637719999999, lng: -122.3704345 },
-    },
-    {
-        name: 'Amped Rides',
-        area: 'Courtenay',
-        address: '1235 Malahat Drive',
-        onlineStore: 'Yes',
-        url: 'https://amped-rides.com',
-        coordinates: { lat: 49.7019712, lng: -124.9654311 },
-    },
-    {
-        name: 'AR Cycles',
-        area: 'Mayne Island',
-        address: '309 Wood Dale Dr',
-        onlineStore: 'Yes',
-        url: 'https://ARCycles.ca',
-        coordinates: { lat: 48.8438501, lng: -123.3138204 },
-    },
-    {
-        name: 'Armada Trading Ltd.',
-        area: 'Surrey',
-        address: '13890 104Th Ave',
-        onlineStore: 'Yes',
-        url: 'https://armadascooters.com',
-        coordinates: { lat: 49.1910401, lng: -122.8371717 },
-    },
     {
         name: 'Biktrix Enterprises Inc.',
         area: 'Vancouver',
@@ -121,17 +55,16 @@ const data1: storesData[] = [
         coordinates: { lat: 49.2642926, lng: -123.1696224 },
     },
 ];
-
-const citiesBC: string[] = [
-    'Abbotsford',
-    'Burnaby',
-    'Vancouver',
-    'Richmond',
-    'Victoria',
-    'Surrey',
-    'Washington',
+const data2: storesDataNoCoords[] = [
+    {
+        name: '-',
+        area: '-',
+        address: '-',
+        onlineStore: '-',
+        url: '-',
+        coordinates: '-',
+    },
 ];
-const data: storesData[] = JSON.parse(JSON.stringify(data1));
 
 function Map() {
     const mapRef = useRef<GoogleMap>();
@@ -144,6 +77,9 @@ function Map() {
     const [selectedMarker, setSelectedMarker] = useState<storesData>();
     const [directions, setDirections] = useState<DirectionsResult>();
     const [enhancedStores, setEnhancedStores] = useState<storesData[]>([...data1]);
+    const [filteredStores, setFilteredStores] = useState<storesData[]>([...data1]);
+    const [storesNotOnMap, setStoresNotOnMap] = useState<storesDataNoCoords[]>([...data2]);
+    const [allCities, setAllCities] = useState<string[]>(['Vancouver']);
 
     // no error in when the app starts
     let cityErrorState = useMemo<myError>(() => {
@@ -152,6 +88,31 @@ function Map() {
 
     const mapOptions = useMemo<MapOptions>(() => {
         return { disableDefaultUI: true, clickableIcons: false, mapId: 'a4e414a0f398b366' }; //
+    }, []);
+
+    // fetching data
+    useEffect(() => {
+        const promises = [
+            getJson('https://bike-fnder-app-bucket.s3.us-west-1.amazonaws.com/allCities.json'),
+            getJson('https://bike-fnder-app-bucket.s3.us-west-1.amazonaws.com/dataNoCoords.json'),
+            getJson('https://bike-fnder-app-bucket.s3.us-west-1.amazonaws.com/dataWithCoords.json'),
+        ];
+        Promise.all(promises)
+            .then((responses) => {
+                // Handle the resolved responses
+                responses.forEach((response, i) => {
+                    if (i === 0) setAllCities(response);
+                    if (i === 1) setStoresNotOnMap(response);
+                    if (i === 2) setEnhancedStores(response);
+                });
+                setUserCity('Vancouver');
+                console.log('got the data');
+                debugger;
+            })
+            .catch((error) => {
+                // Handle errors, if any of the requests fail
+                console.error(error);
+            });
     }, []);
 
     useEffect(() => {
@@ -180,7 +141,7 @@ function Map() {
         }
     };
 
-    if (!citiesBC.includes(userCity)) {
+    if (!allCities.includes(userCity)) {
         cityErrorState.isError = true;
         cityErrorState.value =
             'Bike stores are only visible on the map in cities available in the City Dropdown above';
@@ -188,9 +149,18 @@ function Map() {
 
     // changing the data according to the checkbox
     useEffect(() => {
+        const generateAllStores = (): storesData[] => {
+            return enhancedStores;
+        };
+
+        // }
+        const generateStoresInCity = (city: string): storesData[] => {
+            const newData: storesData[] = enhancedStores.filter((store) => store.area === city);
+            return newData;
+        };
         if (!displayAllStore) {
-            setEnhancedStores(generateStoresInCity(userCity));
-        } else setEnhancedStores(generateAllStores());
+            setFilteredStores(generateStoresInCity(userCity));
+        } else setFilteredStores(generateAllStores());
     }, [userCity, displayAllStore]);
 
     // handeling the checkbox change
@@ -234,8 +204,8 @@ function Map() {
                     <span className="description"> City: </span>
                     <select className="dropdown" name="cities">
                         <option value="around you">Around you</option>
-                        {citiesBC.length &&
-                            citiesBC.map((city, i) => (
+                        {allCities &&
+                            allCities.map((city, i) => (
                                 <option key={i} value={city}>
                                     {city}
                                 </option>
@@ -262,7 +232,7 @@ function Map() {
                         <MarkerF position={userLocation} />
                         {/* if no city error then (if no display All store then no cluster, just markerf. if display store then clustering with enhanced store as thart) */}
                         {!displayAllStore ? (
-                            enhancedStores.map((store, i) => {
+                            filteredStores.map((store, i) => {
                                 return (
                                     <MarkerF
                                         key={i}
@@ -279,7 +249,7 @@ function Map() {
                             <MarkerClusterer>
                                 {(clusturer) => (
                                     <>
-                                        {enhancedStores.map((store, i) => (
+                                        {filteredStores.map((store, i) => (
                                             <MarkerF
                                                 key={i}
                                                 position={store.coordinates}
@@ -324,6 +294,7 @@ function Map() {
                                     </div>
                                     <br />
                                     <button
+                                        style={{ backgroundColor: '#0377fc' }}
                                         onClick={() => {
                                             fetchDirections(selectedMarker.coordinates);
                                         }}
@@ -336,18 +307,9 @@ function Map() {
                     </GoogleMap>
                 </div>
             </MapContainer>
-            <Bottom data={data2}></Bottom>
+            <Bottom data={storesNotOnMap}></Bottom>
         </>
     );
 }
 
-const generateAllStores = (): storesData[] => {
-    return data;
-};
-
-// }
-const generateStoresInCity = (city: string): storesData[] => {
-    const newData: storesData[] = data.filter((store) => store.area === city);
-    return newData;
-};
 export default Map;

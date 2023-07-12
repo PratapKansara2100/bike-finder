@@ -18,7 +18,6 @@ type PlacesProps = {
 
 const Places = ({ setLocation, setcity }: PlacesProps) => {
     const {
-        ready,
         value,
         setValue,
         suggestions: { status, data },

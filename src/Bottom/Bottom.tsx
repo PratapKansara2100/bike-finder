@@ -6,7 +6,7 @@ type storesDataNoCoords = {
     address: string;
     onlineStore: string;
     url: string;
-    coordinates: null | undefined | LatLngLiteral;
+    coordinates: null | undefined | LatLngLiteral | string;
 };
 type LatLngLiteral = google.maps.LatLngLiteral;
 
