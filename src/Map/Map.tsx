@@ -146,9 +146,6 @@ function Map() {
     }
 
     // handeling the checkbox change
-    const toggleDisplayAllStore = (): void => {
-        setDisplayAllStore(!displayAllStore);
-    };
 
     // setting a reference to map onLoad, helps with panning
     const onLoad = useCallback((map: any) => (mapRef.current = map), []);
