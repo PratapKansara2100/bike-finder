@@ -79,6 +79,7 @@ function Map() {
     const [enhancedStores, setEnhancedStores] = useState<storesData[]>([...data1]);
     const [storesNotOnMap, setStoresNotOnMap] = useState<storesDataNoCoords[]>([...data2]);
     const [allCities, setAllCities] = useState<string[]>(['Vancouver']);
+    const [directionErrorState, setDirectionErrorState] = useState<boolean>(false);
 
     // no error in when the app starts
     let cityErrorState = useMemo<myError>(() => {
@@ -102,7 +103,7 @@ function Map() {
                 responses.forEach((response, i) => {
                     if (i === 0) setAllCities(response);
                     if (i === 1) setStoresNotOnMap(response);
-                    if (i === 2) setEnhancedStores(response);
+                    // if (i === 2) setEnhancedStores(response);
                 });
                 setUserCity('Vancouver');
             })
@@ -163,7 +164,7 @@ function Map() {
             (result, stat) => {
                 if (stat === 'OK' && result) {
                     setDirections(result);
-                }
+                } else setDirectionErrorState(true);
             }
         );
     };
@@ -247,6 +248,7 @@ function Map() {
                                 onCloseClick={() => {
                                     setSelectedMarker(undefined);
                                     setDirections(undefined);
+                                    setDirectionErrorState(false);
                                 }}
                                 options={{
                                     pixelOffset: new window.google.maps.Size(0, -20),
@@ -277,11 +279,17 @@ function Map() {
                                     >
                                         get directions
                                     </button>
-                                    <br />
-                                    <small>
+                                    {directionErrorState ? (
+                                        <div style={{ color: 'red' }}>
+                                            unable to get direction: google maps api error
+                                        </div>
+                                    ) : (
+                                        <br />
+                                    )}
+                                    <div>
                                         For stores showing outside of BC, check details manually
                                         (Technical-Error)*
-                                    </small>
+                                    </div>
                                 </div>
                             </InfoWindowF>
                         )}
