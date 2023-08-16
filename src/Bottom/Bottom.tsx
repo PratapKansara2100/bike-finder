@@ -12,12 +12,18 @@ type LatLngLiteral = google.maps.LatLngLiteral;
 
 type BottomProps = {
     data: storesDataNoCoords[];
+    number1: number;
+    number2: number;
 };
 
-const Bottom = ({ data }: BottomProps) => {
+const Bottom = ({ data, number1, number2 }: BottomProps) => {
     return (
         <div className="section-3">
-            <h2>List of cities not displaying on the map: </h2>
+            <h6>
+                Number of stores displayed on the map: {number1}; Number of stores listed below:{' '}
+                {number2}
+            </h6>
+            <h2>List of stores not displaying on the map: </h2>
             <table>
                 <tr style={{ height: '50px', color: 'blue' }}>
                     <th>Retailer Name</th>

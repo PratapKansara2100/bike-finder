@@ -288,7 +288,11 @@ function Map() {
                     </GoogleMap>
                 </div>
             </MapContainer>
-            <Bottom data={storesNotOnMap}></Bottom>
+            <Bottom
+                data={storesNotOnMap}
+                number1={enhancedStores.length}
+                number2={storesNotOnMap.length}
+            ></Bottom>
         </>
     );
 }
